@@ -50,7 +50,7 @@ class GpsTracker {
       return paramsArray.join(';');
     }
   
-    // Основной метод генерации трекера
+    // Основной метод генерации трекера (payload object)
     getGpsTracker() {
       const coords = this.generateCoordinates();
   
