@@ -11,6 +11,10 @@ th, td {
     justify-content: space-between;
     align-items: center;
 }
+.header h2 a {
+    text-decoration: none;
+    color: inherit;
+}
 
 #clearBtn {
     all: unset;                   
