@@ -1,0 +1,34 @@
+table { 
+    border-collapse: collapse; 
+    width: 100%; 
+}
+th, td { 
+    border: 1px solid #aaa; 
+    padding: 4px 8px; 
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#clearBtn {
+    all: unset;                   
+    display: block;               
+    margin: 0.67em 0;             
+    font-size: 1.5em;               
+    font-weight: bold;            
+    color: inherit;               
+    cursor: pointer;              
+  }
+  
+#clearBtn:hover {
+    opacity: 0.8;                 
+}
+
+td:not(:last-child) {
+    text-align: center;
+    white-space: pre-wrap;     /* сохраняет переносы и пробелы */
+    word-break: break-word;    /* переносит длинные слова */
+    max-width: 300px;          
+}
