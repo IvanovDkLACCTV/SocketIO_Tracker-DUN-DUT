@@ -3,7 +3,7 @@ const GpsTracker = require('./model');
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-module.exports = async function startLoop(url, intervalMs) {
+module.exports = async function startLoop(url, intervalMs, id) {
   const socket = io(url, { transports: ['websocket'] });
 
   await new Promise((resolve, reject) => {
@@ -11,7 +11,7 @@ module.exports = async function startLoop(url, intervalMs) {
     socket.once('connect_error', reject);
   });
 
-  console.log(`→ Loop started on ${url}`);
+  console.log(`→ Loop ${id} started on ${url}`);
 
   const timer = setInterval(() => {
     const tracker = new GpsTracker();
@@ -21,6 +21,5 @@ module.exports = async function startLoop(url, intervalMs) {
   return () => {
     clearInterval(timer);
     socket.disconnect();
-    console.log(`← Loop stopped on ${url}`);
   };
 };
