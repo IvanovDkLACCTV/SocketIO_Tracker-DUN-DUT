@@ -2,3 +2,6 @@
 package-lock.json
 node_modules
 server/logs
+tasks
+
+SocketIO_Tracker-DUN-DUT*
