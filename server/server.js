@@ -1,4 +1,3 @@
-// npm i socket.io express fs-extra dayjs
 const fs       = require('fs-extra');
 const path     = require('path');
 const express  = require('express');
@@ -6,7 +5,21 @@ const app      = express();
 const http     = require('http').createServer(app);
 const io       = require('socket.io')(http, { cors: { origin: '*' } });
 const dayjs    = require('dayjs');
+const db = require('./db');
 
+//Счётчик сообщений
+let messageCount = 0;
+
+//Хранение в БД
+const insert = db.prepare(`
+  INSERT INTO messages (
+    sequenceId, timestamp, msgId, deviceno, imei, lat, lng, speed, direction,
+    altitude, dateTime, currentDate, saltelite, odometer, checked, actual, moving
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
+
+// Логирование
 const LOG_DIR = path.join(__dirname, 'logs');
 fs.ensureDirSync(LOG_DIR);
 
@@ -22,13 +35,32 @@ io.of('/sender').on('connection', socket => {
 
   socket.on('gps_tracker', payload => {
     try {
-      // 1. сохраняем всё как есть
+      //  логируем всё как есть
       logToFile(payload);
 
-      // 2. готовим к нужные поля
+      //  готовим к нужные поля
       const currentDate = dayjs(payload.dateTime).format('YYYY-MM-DD HH:mm:ss');
+
+      // Счётчик сообщений
+      const sequenceId = ++messageCount;
+
+      //  сохраняем в БД
+      insert.run(
+        sequenceId, Date.now(), msgId, deviceno, imei, lat, lng, speed, direction,
+        altitude, dateTime, currentDate, saltelite, odometer,
+        checked ? 1 : 0, actual ? 1 : 0, moving ? 1 : 0
+      );
+
+      // Проверка количества параметров
+      const expectedValues = (insert.source.match(/\?/g) || []).length;
+      if (insert.parameters.length !== expectedValues) {
+        throw new Error('Количество параметров не совпадает с SQL-запросом');
+      }
+      
+      // передаём все параметры
       const { msgId, deviceno, imei, lat, lng, speed, direction, altitude, dateTime, saltelite, params, odometer, checked, actual, moving } = payload;
       const sendPayload = {
+        sequenceId,
         deviceno,
         msgId,
         imei,
@@ -47,7 +79,7 @@ io.of('/sender').on('connection', socket => {
         moving,
       }
 
-      // 3. рассылаем всем клиентам-получателям
+      //  рассылаем всем клиентам-получателям
       io.of('/receiver').emit('gps_update', sendPayload);
     } catch (e) {
       console.error('Bad payload:', e);

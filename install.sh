@@ -1,4 +1,5 @@
 #!/bin/bash
 echo "Установка npm пакетов..."
-npm i socket.io express fs-extra dayjs socket.io-client
+npm i socket.io socket.io-client express fs-extra dayjs sqlite3 better-sqlite3
+npm i
 echo "Установка завершена!"

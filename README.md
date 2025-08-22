@@ -1,6 +1,6 @@
 ### install
 
-npm i socket.io socket.io-client express fs-extra dayjs
+npm i socket.io socket.io-client express fs-extra dayjs sqlite3 better-sqlite3
 
 Change IP-adress in *.env* to yours
 

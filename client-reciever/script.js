@@ -37,7 +37,7 @@ socket.on('gps_update', data => {
   });
 
   tr.innerHTML = `
-    <td style="text-align:center">${data.msgId}</td>
+    <td style="text-align:center">${data.msgId}<br>${data.sequenceId}</td>
     <td style="text-align:center">${data.dateTime}</td>
     <td style="text-align:center">${data.currentDate}</td>
     <td style="text-align:center">${data.deviceno}</td>
