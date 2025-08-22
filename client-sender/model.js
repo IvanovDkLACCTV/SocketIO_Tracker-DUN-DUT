@@ -1,8 +1,4 @@
 class GpsTracker {
-    constructor(deviceno) {
-      this.deviceno = deviceno;
-    }
-  
     // Генерация случайного ID
     generateId() {
       return Math.floor(Math.random() * 1000);
@@ -47,7 +43,14 @@ class GpsTracker {
         'fls_t8:0', 'rel_fls11:0', 'status_bit12_13:2', 'fls_t6:0', 'status_bit2:0',
         'fls_t14:0', 'fls2:0'
       ];
-      return paramsArray.join(';');
+
+      const paramsObject = {};
+      paramsArray.forEach(entry => {
+        const [key, value] = entry.split(':');
+        paramsObject[key] = isNaN(value) ? value : parseFloat(value);
+      });
+
+      return paramsObject;
     }
   
     // Основной метод генерации трекера (payload object)

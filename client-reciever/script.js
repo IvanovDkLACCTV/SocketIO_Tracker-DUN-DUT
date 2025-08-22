@@ -6,29 +6,32 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   tbody.innerHTML = '';
 });
 
-// Форматирование параметров с переносом строк
-const formatParams = (text, chunkSize = 40) => {
-  return text.match(new RegExp(`.{1,${chunkSize}}`, 'g')).join('\n');
+// Форматирование объекта параметров
+const formatParamsObject = (paramsObj) => {
+  return Object.entries(paramsObj)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join('\n');
 };
 
-// Сокращённый вариант параметров
-const shortParams = (params) => {
-  return params.length > 40 ? params.slice(0, 40) + '…' : params;
+// Сокращённый вариант (первые N параметров)
+const shortParamsObject = (paramsObj, limit = 10) => {
+  const entries = Object.entries(paramsObj).slice(0, limit);
+  return entries.map(([key, value]) => `${key}: ${value}`).join('\n') + '…';
 };
 
 // Обработка входящих данных
 socket.on('gps_update', data => {
   const tr = document.createElement('tr');
 
-  const fullParams = formatParams(data.params);
-  const shortText = shortParams(data.params);
+  const fullParams = formatParamsObject(data.params);
+  const shortText = shortParamsObject(data.params);
 
   const paramCell = document.createElement('td');
   paramCell.textContent = shortText;
   paramCell.style.cursor = 'pointer';
-  paramCell.style.whiteSpace = 'pre-wrap'; // перенос строк
-  paramCell.style.wordBreak = 'break-word'; // перенос длинных слов
-  paramCell.style.maxWidth = '300px'; // ограничение ширины
+  paramCell.style.whiteSpace = 'pre-wrap';
+  paramCell.style.wordBreak = 'break-word';
+  paramCell.style.maxWidth = '300px';
   paramCell.addEventListener('click', () => {
     paramCell.textContent = paramCell.textContent === shortText ? fullParams : shortText;
   });
