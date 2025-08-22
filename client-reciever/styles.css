@@ -15,6 +15,9 @@ th, td {
     text-decoration: none;
     color: inherit;
 }
+.header h2:hover {
+    color: tomato;
+}
 
 #clearBtn {
     all: unset;                   
