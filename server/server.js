@@ -5,19 +5,18 @@ const app      = express();
 const http     = require('http').createServer(app);
 const io       = require('socket.io')(http, { cors: { origin: '*' } });
 const dayjs    = require('dayjs');
-const db = require('./db');
+const db       = require('./db');
 
-//Счётчик сообщений
+// Счётчик сообщений
 let messageCount = 0;
 
-//Хранение в БД
+// Хранение в БД
 const insert = db.prepare(`
   INSERT INTO messages (
     sequenceId, timestamp, msgId, deviceno, imei, lat, lng, speed, direction,
-    altitude, dateTime, currentDate, saltelite, odometer, checked, actual, moving
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    altitude, dateTime, currentDate, saltelite, odometer, checked, actual, moving, params
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
-
 
 // Логирование
 const LOG_DIR = path.join(__dirname, 'logs');
@@ -35,30 +34,47 @@ io.of('/sender').on('connection', socket => {
 
   socket.on('gps_tracker', payload => {
     try {
-      //  логируем всё как есть
+      // логируем всё как есть
       logToFile(payload);
 
-      //  готовим к нужные поля
-      const currentDate = dayjs(payload.dateTime).format('YYYY-MM-DD HH:mm:ss');
+      // готовим нужные поля
+      const {
+        msgId, deviceno, imei, lat, lng, speed, direction,
+        altitude, dateTime, saltelite, params, odometer,
+        checked, actual, moving
+      } = payload;
+
+      const currentDate = dayjs(dateTime).format('YYYY-MM-DD HH:mm:ss');
 
       // Счётчик сообщений
       const sequenceId = ++messageCount;
 
-      //  сохраняем в БД
-      insert.run(
-        sequenceId, Date.now(), msgId, deviceno, imei, lat, lng, speed, direction,
-        altitude, dateTime, currentDate, saltelite, odometer,
-        checked ? 1 : 0, actual ? 1 : 0, moving ? 1 : 0
-      );
+      // подготавливаем значения для вставки в БД
+      const values = [
+        sequenceId,
+        Date.now(), // timestamp
+        msgId,
+        deviceno,
+        imei,
+        lat,
+        lng,
+        speed,
+        direction,
+        altitude,
+        dateTime,
+        currentDate,
+        saltelite,
+        odometer,
+        checked,
+        actual,
+        moving,
+        JSON.stringify(params) // преобразуем params в JSON строку
+      ];
 
-      // Проверка количества параметров
-      const expectedValues = (insert.source.match(/\?/g) || []).length;
-      if (insert.parameters.length !== expectedValues) {
-        throw new Error('Количество параметров не совпадает с SQL-запросом');
-      }
-      
+      // сохраняем в БД
+      insert.run(...values);
+
       // передаём все параметры
-      const { msgId, deviceno, imei, lat, lng, speed, direction, altitude, dateTime, saltelite, params, odometer, checked, actual, moving } = payload;
       const sendPayload = {
         sequenceId,
         deviceno,
@@ -77,9 +93,9 @@ io.of('/sender').on('connection', socket => {
         checked,
         actual,
         moving,
-      }
+      };
 
-      //  рассылаем всем клиентам-получателям
+      // рассылаем всем клиентам-получателям
       io.of('/receiver').emit('gps_update', sendPayload);
     } catch (e) {
       console.error('Bad payload:', e);
