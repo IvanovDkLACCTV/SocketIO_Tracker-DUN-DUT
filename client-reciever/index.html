@@ -6,35 +6,42 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="header">
-        <h2><a href="http://lacctv.ru" target="_blank">Leading Alliance</a></h2>
-        <button id="clearBtn">Clear table</button>
-    </div>
-<table id="table">
-  <thead>
-    <tr>
-      <th>Номер записи<br>на устройстве/в БД</th>
-      <th>Время<br>тревоги</th>
-      <th>Время<br>приёма</th>
-      <th>Номер<br>устройства</th>
-      <th>IMEI</th>
-      <th>Широта</th>
-      <th>Долгота</th>
-      <th>Высота</th>
-      <th>Скорость</th>
-      <th>Направление</th>
-      <th>Количество<br>спутников</th>
-      <th>Пробег</th>
-      <th>Проверено</th>
-      <th>Актуально</th>
-      <th>Движение</th>
-      <th>Параметры</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
+  <div class="header">
+    <h2><a href="http://lacctv.ru" target="_blank">Leading Alliance</a></h2>
+    <button id="clearBtn">Clear the table</button>
+  </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="script.js"></script>
+  <div class="controls">
+    <span id="counter">Получено: 0 | Отображается: 0 | Страница: 1 / 1</span>
+    <button id="prevBtn">←</button>
+    <button id="nextBtn">→</button>
+  </div>
+
+  <table id="table">
+    <thead>
+      <tr>
+        <th>Номер записи<br>на устройстве/в БД</th>
+        <th>Время<br>тревоги</th>
+        <th>Время<br>приёма</th>
+        <th>Номер<br>устройства</th>
+        <th>IMEI</th>
+        <th>Широта</th>
+        <th>Долгота</th>
+        <th>Высота</th>
+        <th>Скорость</th>
+        <th>Направление</th>
+        <th>Количество<br>спутников</th>
+        <th>Пробег</th>
+        <th>Проверено</th>
+        <th>Актуально</th>
+        <th>Движение</th>
+        <th>Параметры</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

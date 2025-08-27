@@ -4,21 +4,36 @@ const app      = express();
 const http     = require('http').createServer(app);
 const io       = require('socket.io')(http, { cors: { origin: '*' } });
 const dayjs    = require('dayjs');
-const { db, initDB } = require('./lowdb');
+const fs       = require('fs');
+const { initDB } = require('./lowdb');
 
-// Счётчик сообщений
-let messageCount = 0;
+let receivedCount = 0;
+let sentCount     = 0;
+let messageCount  = 0;
 
-// Раздаём клиент-ресивер
-app.use('/', express.static(path.join(__dirname, '../client-reciever')));
-
-// Инициализация базы и запуск сервера
 (async () => {
-  await initDB();
+  // Уникальный ключ для текущей сессии
+  const sessionKey = `messages_${dayjs().format('YYYYMMDD_HHmmss')}`;
+  const db = await initDB(sessionKey);
 
-  // Восстанавливаем счётчик из базы
-  messageCount = db.data?.messages?.length || 0;
-  console.log(`💾 Восстановлен счётчик: ${messageCount} сообщений`);
+  // Раздаём клиент-ресивер
+  app.use('/', express.static(path.join(__dirname, '../client-reciever')));
+
+  // Логирование
+  function writeLog(log) {
+    const logsDir = path.join(__dirname, 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    const logFile = path.join(logsDir, 'session.log');
+    const timestamp = dayjs().format('YYYY-MM-DD HH:mm:ss');
+    fs.appendFileSync(logFile, `${timestamp} — ${log}\n`);
+  }
+
+  // Создаём новую таблицу для текущей сессии
+  db.data[sessionKey] = [];
+  console.log(`📁 Создана новая таблица: ${sessionKey}`);
 
   // Обработка подключений от отправителей
   io.of('/sender').on('connection', socket => {
@@ -26,6 +41,8 @@ app.use('/', express.static(path.join(__dirname, '../client-reciever')));
 
     socket.on('gps_tracker', async payload => {
       try {
+        receivedCount++;
+
         const {
           msgId, deviceno, imei, lat, lng, speed, direction,
           altitude, dateTime, saltelite, params, odometer,
@@ -59,11 +76,10 @@ app.use('/', express.static(path.join(__dirname, '../client-reciever')));
           params
         };
 
-        // 1. Сразу отправляем на фронт
         io.of('/receiver').emit('gps_update', message);
+        sentCount++;
 
-        // 2. Пишем в базу в фоне
-        db.data.messages.push(message);
+        db.data[sessionKey].push(message);
         db.write().catch(err => {
           console.error(`❌ Ошибка записи sequenceId ${sequenceId}:`, err);
         });
@@ -79,6 +95,14 @@ app.use('/', express.static(path.join(__dirname, '../client-reciever')));
   // Обработка подключений от получателей
   io.of('/receiver').on('connection', socket => {
     console.log('→ receiver connected', socket.id);
+  });
+
+  // Логирование при остановке
+  process.on('SIGINT', () => {
+    const log = `🛑 Сервер остановлен\n📥 Получено: ${receivedCount}\n📤 Отправлено: ${sentCount}\n📁 Таблица: ${sessionKey}\n`;
+    console.log(log);
+    writeLog(log);
+    process.exit();
   });
 
   const IP_ADDRESS = process.env.IP_ADDRESS || '127.0.0.1';

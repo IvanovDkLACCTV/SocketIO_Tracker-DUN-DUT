@@ -1,18 +1,22 @@
-const path = require('path');
 const { Low } = require('lowdb');
 const { JSONFile } = require('lowdb/node');
+const path = require('path');
+const fs = require('fs');
 
-// путь до файла с данными
-const file = path.join(__dirname, 'db', 'messages.json');
-const adapter = new JSONFile(file);
+async function initDB(sessionKey) {
+  const dbDir = path.join(__dirname, 'db');
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 
-// создаём объект базы
-const db = new Low(adapter, { messages: [] });
+  const filePath = path.join(dbDir, `${sessionKey}.json`);
+  const adapter = new JSONFile(filePath);
+  const db = new Low(adapter, {}); // ← вот здесь добавлен пустой объект как defaultData
 
-// функция инициализации
-async function initDB() {
   await db.read();
-  db.data ||= { messages: [] }; // если файл пустой
+  db.data ||= {}; // ← если файл пустой, создаём корневой объект
+
+  return db;
 }
 
-module.exports = { db, initDB };
+module.exports = { initDB };
