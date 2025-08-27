@@ -1,6 +1,6 @@
 ### install
 
-npm i socket.io socket.io-client express fs-extra dayjs sqlite3 better-sqlite3
+npm i socket.io socket.io-client express fs-extra dayjs lowdb
 
 Change IP-adress in *.env* to yours
 
@@ -11,30 +11,6 @@ node server/server.js
 ### Demo sender start
 
 node client-sender/sender.js
-
-### Or for Windows you can use scripts:
-
-#### installing
-
-install.bat
-
-#### start ws-server
-
-start-server.bat
-
-#### start sender
-
-start-sender.bat
-
-### for Linux:
-
-chmod +x install.sh
-chmod +x start-server.sh 
-chmod +x start-sender.sh
-
-./install.sh
-./start-server.sh
-./start-sender.sh
 
 ## logs folder:
 
