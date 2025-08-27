@@ -3,6 +3,6 @@ package-lock.json
 node_modules
 server/logs
 tasks
-db/*.*
+server/db/*.*
 
 SocketIO_Tracker-DUN-DUT*
