@@ -1,3 +1,4 @@
+//const socket = io('http://31.173.26.39:7070/receiver');
 const socket = io('/receiver');
 const tbody = document.querySelector('#table tbody');
 const counter = document.getElementById('counter');
