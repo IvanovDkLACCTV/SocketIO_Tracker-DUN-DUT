@@ -4,7 +4,7 @@ const GpsTracker = require('./model');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 module.exports = async function startLoop(url, intervalMs, id) {
-  const socket = io(url, { transports: ['websocket'] });
+  const socket = io(url, { transports: ['websocket', 'polling'] });
 
   await new Promise((resolve, reject) => {
     socket.once('connect', () => resolve());
