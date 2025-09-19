@@ -5,7 +5,7 @@ const PORT       = process.env.PORT || 7070;
 const URL        = `http://${IP_ADDRESS}:${PORT}/sender`;
 
 const LOOPS_COUNT = 20;
-const MESSAGES_PER_SECOND = 60;
+const MESSAGES_PER_SECOND = 40;
 const INTERVAL_MS = 1000 / (MESSAGES_PER_SECOND / LOOPS_COUNT);
 
 const RUN_DURATION_MS = 60_000 * 10; // 10 минут
