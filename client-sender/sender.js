@@ -26,7 +26,7 @@ async function runLoopsCycle() {
 
     console.log(`⏳ Ожидание ${PAUSE_DURATION_MS / 60_000} минут...`);
     setTimeout(() => {
-      runLoopsCycle(); // 🔁 Перезапуск
+      runLoopsCycle(); 
     }, PAUSE_DURATION_MS);
   }, RUN_DURATION_MS);
 }
